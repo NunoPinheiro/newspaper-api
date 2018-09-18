@@ -1,8 +1,11 @@
 FROM python:3.7.0-stretch
 
-#Temporarily use Nuno's fork until it is merged to the main project
-RUN git clone https://github.com/NunoPinheiro/newspaper.git && \
+#Newspaper will be used only to get the top image
+RUN git clone https://github.com/codelucas/newspaper.git && \
     cd newspaper && pip install -r requirements.txt
+
+RUN git clone https://github.com/dragnet-org/dragnet.git
+RUN cd dragnet && pip install -r requirements.txt && make
 
 RUN pip install --no-cache-dir flask uwsgi
 
