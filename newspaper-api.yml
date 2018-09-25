@@ -1,5 +1,5 @@
 # Usage (to create or update):
-# 
+#
 # gcloud init
 # gcloud auth login
 # gcloud components install kubectl
@@ -14,9 +14,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: newspaper-api
+  name: newspaper-test-api
   labels:
-    app: newspaper
+    app: newspaper-test
     tier: backend
     role: master
 spec:
@@ -26,14 +26,14 @@ spec:
     targetPort: 38765
   type: LoadBalancer
   selector:
-    app: newspaper
+    app: newspaper-test
     tier: backend
     role: master
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: newspaper-api
+  name: newspaper-test-api
   # these labels can be applied automatically
   # from the labels in the pod template if not set
   # labels:
@@ -54,13 +54,13 @@ spec:
   template:
     metadata:
       labels:
-        app: newspaper
+        app: newspaper-test
         role: master
         tier: backend
     spec:
       containers:
       - name: master
-        image: smarp/newspaper-api
+        image: nmgfpinheiro/newspaper-api:latest
         resources:
         resources:
           requests:
@@ -84,12 +84,12 @@ spec:
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: newspaper-api
+  name: newspaper-test-api
   namespace: default
 spec:
   scaleTargetRef:
     kind: Deployment
-    name: newspaper-api
+    name: newspaper-test-api
   minReplicas: 1
   maxReplicas: 100
   targetCPUUtilizationPercentage: 60
@@ -97,10 +97,9 @@ spec:
 apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
 metadata:
-  name: newspaper-pdb
+  name: newspaper-test-pdb
 spec:
   minAvailable: 1
   selector:
     matchLabels:
-      app: newspaper
-
+      app: newspaper-test

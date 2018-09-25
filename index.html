@@ -1,0 +1,141 @@
+<html>
+
+<head>
+  <title>Preview</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+    crossorigin="anonymous">
+
+  <script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+
+  <style>
+    .preview-container {
+      margin-top: 30px;
+    }
+    .preview-input-wrapper {
+      margin-bottom: 50px;
+    }
+    .url-input {
+          max-width: 480px;
+          margin: 0 auto;
+			}
+      .preview {
+        border: 1px solid #ddd;
+        padding: 10px;
+      }
+      .preview pre {
+        white-space: pre-wrap;
+      }
+      .preview-title {
+        margin-bottom: 20px;
+      }
+		</style>
+</head>
+
+<body>
+  <div class="container-fluid preview-container">
+    <div class="preview-input-wrapper">
+      <input placeholder="URL to preview" type="text" class="form-control url-input" id="js-input" />
+    </div>
+
+    <div class="row preview-wrapper">
+      <div class="col-4">
+        <h6 class="preview-title">
+          Service 1
+        </h6>
+        <div id="js-preview-service1" class="preview">
+          <pre>
+            Please insert link to fill
+          </pre>
+        </div>
+      </div>
+      <div class="col-4">
+        <h6 class="preview-title">
+          Service 2
+        </h6>
+        <div id="js-preview-service2" class="preview">
+          <pre>
+            Please insert link to fill
+          </pre>
+        </div>
+      </div>
+      <div class="col-4">
+        <h6 class="preview-title">
+          Service 3
+        </h6>
+        <div id="js-preview-service3" class="preview">
+          <pre>
+            Please insert link to fill
+          </pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+<script>
+
+  let diffBotTag =  "#js-preview-service1 pre";
+  let currentNewspaperTag =  "#js-preview-service2 pre";
+  let newNewspaperTag =  "#js-preview-service3 pre";
+
+  $('#js-input').on("change", function(e, el){
+    let url = e.target.value
+    $(diffBotTag).text("Loading!")
+    $(currentNewspaperTag).text("Loading!")
+    $(newNewspaperTag).text("Loading!")
+
+    //Diff bot stuff
+    let diffBotUrl = "https://api.diffbot.com/v3/article?token=80e5578bbc063967bb9b248afd5f9b2c&norender&url=" + url
+    $.ajax(
+      {
+        url: diffBotUrl,
+        success: function(data){
+        if(data.objects  && data.objects.length > 0){
+          console.log(data.objects[0].text)
+          let diffBotText = data.objects[0].text
+          $(diffBotTag).text(diffBotText)
+        }
+        else{
+          $(diffBotTag).text("upsy, this one failed")
+        }
+      },
+      error: function(){
+        $(diffBotTag).text("upsy, this one failed")
+      }
+    });
+
+    // current newspaper stuff
+    // This needs to be done from the serverside due to cross site stuff
+    let newspaperUrl = "/oldApi?url=" + url;
+    $.ajax(
+      {
+        url: newspaperUrl,
+        success: function(data){
+          data = JSON.parse(data)
+          $(currentNewspaperTag).text(data.text)
+        },
+        error: function(){
+          $(currentNewspaperTag).text("upsy, this one failed")
+        }
+    });
+
+    //new newspaper stuff
+    // current newspaper stuff
+    let newNewspaperUrl = "/topimage?url=" + url;
+    $.ajax(
+      {
+        url: newNewspaperUrl,
+        success: function(data){
+          $(newNewspaperTag).text(data.text)
+        },
+        error: function(){
+          $(newNewspaperTag).text("upsy, this one failed")
+        }
+    });
+})
+</script>
+
+</html>

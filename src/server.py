@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from flask import Flask, url_for, request
+from flask import Flask, url_for, request, Response
 from newspaper import Article
 import os, json
 import requests
@@ -14,6 +14,10 @@ log.setLevel(logging.ERROR)
 content_extractor = load_pickled_model('kohlschuetter_readability_weninger_comments_content_model.pkl.gz')
 
 @app.route('/', methods = ['GET'])
+def metrics():  # pragma: no cover
+    content = open('/index.html').read()
+    return Response(content, mimetype="text/html")
+
 @app.route('/topimage',methods = ['GET'])
 def api_top_image():
     url = request.args.get('url')
@@ -22,8 +26,6 @@ def api_top_image():
     article = get_article(url, article_content)
     # Get text content from dragnet
     dragnet_text = get_dragnet_text(article_content)
-    print("here???")
-    print(dragnet_text)
     return json.dumps({
         "authors": article.authors,
         "images:": list(article.images),
@@ -32,6 +34,12 @@ def api_top_image():
         "text": dragnet_text,
         "title": article.title,
         "topimage": article.top_image}), 200, {'Content-Type': 'application/json'}
+
+@app.route('/oldApi',methods = ['GET'])
+def old_api():
+    url = request.args.get('url')
+    r = requests.get("http://newspaper-api.smarpsocial.com:38765", params={'url': url})
+    return r.text
 
 def download_article(url):
     r = requests.get(url)
